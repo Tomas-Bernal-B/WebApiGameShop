@@ -12,8 +12,8 @@ using WebAPIGameShop;
 namespace WebAPIGameShop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221003182153_VideoGames")]
-    partial class VideoGames
+    [Migration("20221025022529_Videogames")]
+    partial class Videogames
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

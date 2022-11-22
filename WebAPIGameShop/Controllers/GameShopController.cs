@@ -16,27 +16,36 @@ namespace WebAPIGameShop.Controllers
         {
             this.dbContext = dbContext;
         }
-        [HttpGet]//api/gamshop
         [HttpGet("listado")]//api/gamshop/listado
-        [HttpGet("/listadoº")]
+        [HttpGet("/listadoº")]//listado
         public async Task<ActionResult<List<GameShop>>> Get()
         {
             return await dbContext.Games.Include(x => x.videoGames).ToListAsync();
         }
 
         [HttpGet("primero")] //api/gameshop/primero
-        public async Task<ActionResult<GameShop>> PrimerGame()
+        public async Task<ActionResult<GameShop>> PrimerGame([FromHeader] int valor, [FromQuery] string game,
+            [FromQuery] int gameid)
         {
             return await dbContext.Games.FirstOrDefaultAsync();
         }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<GameShop>> Get(int id)
+        [HttpGet("primero2")]//api/gameshop/primero2
+        public ActionResult<GameShop> PrimerPeliculaD()
         {
-            return await dbContext.Games.FirstOrDefaultAsync(x => x.Id == id);    
+            return new GameShop() { Nombre = "DOS" };
+        }
+        [HttpGet("{nombre}")]
+        public async Task<ActionResult<GameShop>> Get(string nombre)
+        {
+            var game =  await dbContext.Games.FirstOrDefaultAsync(x => x.Nombre.Contains(nombre));    
+            if(game == null)
+            {
+                return NotFound();
+            }
+            return game;
         }
         [HttpPost]
-
-        public async Task<ActionResult> Post(GameShop gameShop)
+        public async Task<ActionResult> Post([FromBody] GameShop gameShop)
         {
             dbContext.Add(gameShop);
             await dbContext.SaveChangesAsync();
