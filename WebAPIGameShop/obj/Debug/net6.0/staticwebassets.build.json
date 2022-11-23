@@ -1,11 +1,19 @@
 {
   "Version": 1,
-  "Hash": "/imHq/nqlla/s3k8tHtrU/wmNkLzyyBUlG03Hz9F5SI=",
+  "Hash": "fUaW8Xt3O053Em/D1TcLjfgTpgD7L2EvBtSRj/VKqdY=",
   "Source": "WebAPIGameShop",
   "BasePath": "_content/WebAPIGameShop",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "WebAPIGameShop\\wwwroot",
+      "Source": "WebAPIGameShop",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\Facultad\\Sem Ago-Ene 2022\\back-end\\api\\WebAPIGameShop\\WebAPIGameShop\\wwwroot\\",
+      "BasePath": "_content/WebAPIGameShop",
+      "Pattern": "**"
+    }
+  ],
   "Assets": []
 }

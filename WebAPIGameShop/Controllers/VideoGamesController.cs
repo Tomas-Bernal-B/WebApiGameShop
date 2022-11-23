@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPIGameShop.Entidades;
+using WebAPIGameShop.Services;
 
 namespace WebAPIGameShop.Controllers
 {
@@ -16,8 +17,8 @@ namespace WebAPIGameShop.Controllers
             this.dbContext = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<VideoGame>>> GetAll()
+        [HttpGet("/listado")]// /listado
+        public async Task<ActionResult<List<VideoGame>>> Get()
         {
             return await dbContext.VideoGames.ToListAsync();
         }

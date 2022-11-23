@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
 using WebAPIGameShop.Entidades;
 using WebAPIGameShop.Migrations;
+using WebAPIGameShop.Filtros;
+using Microsoft.VisualBasic;
+using System.Diagnostics;
+using WebAPIGameShop.Services;
 
 namespace WebAPIGameShop.Controllers
 {
@@ -11,15 +15,52 @@ namespace WebAPIGameShop.Controllers
     public class GameShopController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
+        private readonly IService service;
+        private readonly ServiceTransient serviceTransient;
+        private readonly ServiceScoped serviceScoped;
+        private readonly ServiceSingleton serviceSingleton;
+        private readonly ILogger<GameShopController> logger;
 
-        public GameShopController(ApplicationDbContext dbContext)
+        public GameShopController(ApplicationDbContext dbContext, IService service,
+          ServiceTransient serviceTransient, ServiceScoped serviceScoped,
+          ServiceSingleton serviceSingleton, ILogger<GameShopController> logger)
         {
             this.dbContext = dbContext;
+            this.service = service;
+            this.serviceTransient = serviceTransient;
+            this.serviceScoped = serviceScoped;
+            this.serviceSingleton = serviceSingleton;
+            this.logger = logger;
         }
+        [HttpGet("GUID")]
+        [ResponseCache(Duration = 10)]
+        [ServiceFilter(typeof(FiltroDeAccion))]
+        public ActionResult ObtenerGUID()
+        {
+            return Ok(new
+            {
+                GamesShopControllerTransient = serviceTransient.guid,
+                ServiceA_Transient = service.GetTransient(),
+                GamesShopControllerScoped = serviceScoped.guid,
+                ServiceA_Scoped = service.GetScoped(),
+                GamesShopControllerSingleton = serviceSingleton.guid,
+                ServiceA_Singleton = service.GetSingleton()
+            });
+        }
+        [HttpGet]//api/gameshop
         [HttpGet("listado")]//api/gamshop/listado
         [HttpGet("/listadoº")]//listado
+        [ResponseCache(Duration = 15)]
+        //[Authorize]
+        //[ServiceFilter(typeof(FiltroDeAccion))]
         public async Task<ActionResult<List<GameShop>>> Get()
         {
+            // critical, error, warning, information, debug, trace
+
+            //throw new NotImplementedException();//con esto mandamos ver tooodo el log, hay otro tipo de excepciones
+            logger.LogInformation("Se obtiene el listado de gameshop");
+            logger.LogWarning("Mensaje de prueba warning");
+            service.ejecutarJob();
             return await dbContext.Games.Include(x => x.videoGames).ToListAsync();
         }
 
@@ -40,6 +81,7 @@ namespace WebAPIGameShop.Controllers
             var game =  await dbContext.Games.FirstOrDefaultAsync(x => x.Nombre.Contains(nombre));    
             if(game == null)
             {
+                logger.LogError("No se encuentra el game");
                 return NotFound();
             }
             return game;
@@ -47,6 +89,13 @@ namespace WebAPIGameShop.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] GameShop gameShop)
         {
+            var existeGameMismoNombre = await dbContext.Games.AnyAsync(x => x.Nombre == gameShop.Nombre);
+
+            if (existeGameMismoNombre)
+            {
+                return BadRequest("Ya existe un game con el nombre");
+            }
+
             dbContext.Add(gameShop);
             await dbContext.SaveChangesAsync();
             return Ok();
