@@ -1,20 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using WebAPIGameShop.Validaciones;
 
-
-namespace WebAPIGameShop.Entidades
+namespace WebAPIGameShop.DTOs
 {
-    public class GameShop
+    public class GameShopCreacionDTO
     {
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "El campo nombre es requerido")]
         [StringLength(maximumLength: 25, ErrorMessage = "El campo {0} es requerido")]
         [PrimeraLetraMayuscula]
 
         public string Nombre { get; set; }
-        public List<GameShopVideogames> GameShopVideogames { get; set; }
-
     }
 }

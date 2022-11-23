@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebAPIGameShop.DTOs;
 using WebAPIGameShop.Entidades;
-using WebAPIGameShop.Services;
+
 
 namespace WebAPIGameShop.Controllers
 {
@@ -11,10 +13,12 @@ namespace WebAPIGameShop.Controllers
 
     {
         private readonly ApplicationDbContext dbContext;
+        private readonly IMapper mapper;
 
-        public VideoGamesController(ApplicationDbContext context)
+        public VideoGamesController(ApplicationDbContext context, IMapper mapper)
         {
             this.dbContext = context;
+            this.mapper = mapper;
         }
 
         [HttpGet("/listado")]// /listado
@@ -24,61 +28,40 @@ namespace WebAPIGameShop.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<VideoGame>> GetById(int id)
+        public async Task<ActionResult<VideoGamesDTOconGameShop>> GetById(int id)
         {
-            return await dbContext.VideoGames.FirstOrDefaultAsync(x => x.Id == id);
+           var videogames = await dbContext.VideoGames.Include(x => x.GameShopVideogames).
+                ThenInclude( videogaemedb => videogaemedb.GameShop).FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<VideoGamesDTOconGameShop>(videogames);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(VideoGame videoGame)
+        public async Task<ActionResult> Post(VideoGameCreacionDTO videoGameCreacionDTO)
         {
-            var exiteGame = await dbContext.Games.AnyAsync(x => x.Id == videoGame.VideoGameId);
-            if (!exiteGame)
+            if(videoGameCreacionDTO.GamesIds == null)
             {
-                return BadRequest("No existe el game con el id ingresado");
+                return BadRequest("No se puede crear un videogame sin Gameshop");
             }
-
-            dbContext.Add(videoGame);
+            var gamshopIds = await dbContext.VideoGames.Where(x => videoGameCreacionDTO.GamesIds.Contains(x.Id)).Select(x => x.Id).ToListAsync();
+            if(videoGameCreacionDTO.GamesIds.Count != gamshopIds.Count)
+            {
+                return BadRequest("No existe uno de los games enviados");
+            }
+            var videogame = mapper.Map<VideoGame>(videoGameCreacionDTO);
+            if (videogame.GameShopVideogames != null)
+            {
+                for(int i=0; i< videogame.GameShopVideogames.Count; i++)
+                {
+                    videogame.GameShopVideogames[i].Orden = i;
+                }
+            }
+            dbContext.Add(videogame);
             await dbContext.SaveChangesAsync();
             return Ok();
 
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(VideoGame videoGame, int id)
-        {
-            var exist = await dbContext.VideoGames.AnyAsync(x => x.Id == id);
-
-            if (!exist)
-            {
-                return NotFound("El juego especificado no existe");
-            }
-
-            if (videoGame.Id != id)
-            {
-                return BadRequest("El id de el Game no coincide con el establecido en el url");
-            }
-
-            dbContext.Update(videoGame);
-            await dbContext.SaveChangesAsync();
-            return Ok();
-        }
-
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var exist = await dbContext.VideoGames.AnyAsync(x => x.Id == id);
-
-            if (!exist)
-            {
-                return NotFound("El Game no fue encontrado");
-            }
-
-            dbContext.Remove(new VideoGame { Id = id });
-            await dbContext.SaveChangesAsync();
-            return Ok();
-
-        }
+       
     }
 
 }

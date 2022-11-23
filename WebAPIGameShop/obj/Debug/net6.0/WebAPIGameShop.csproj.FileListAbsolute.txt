@@ -60,3 +60,10 @@ C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebA
 C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\WebAPIGameShop.staticwebassets.runtime.json
+C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\AutoMapper.dll
+C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\Microsoft.Extensions.Identity.Core.dll
+C:\Users\user\Desktop\Facultad\Sem Ago-Ene 2022\back-end\api\WebAPIGameShop\WebAPIGameShop\bin\Debug\net6.0\Microsoft.Extensions.Identity.Stores.dll

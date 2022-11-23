@@ -1,15 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using System.Text.Json.Serialization;
 using WebAPIGameShop.Filtros;
 using WebAPIGameShop.Middlewares;
-using WebAPIGameShop.Services;
 namespace WebAPIGameShop
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             Configuration = configuration;
         }
 
@@ -24,50 +29,73 @@ namespace WebAPIGameShop
 
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
-            services.AddTransient<IService, ServiceA>();
-            services.AddTransient<ServiceTransient>();
-            services.AddScoped<ServiceScoped>();
-            services.AddSingleton<ServiceSingleton>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddJwtBearer(opciones => opciones.TokenValidationParameters = new TokenValidationParameters
+               {
+                   ValidateIssuer = false,
+                   ValidateAudience = false,
+                   ValidateLifetime = false,
+                   ValidateIssuerSigningKey = true,
+                   IssuerSigningKey = new SymmetricSecurityKey(
+                       Encoding.UTF8.GetBytes(Configuration["llavejwt"])),
+                   ClockSkew = TimeSpan.Zero
+               });
+
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ApiGameShop", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    In = ParameterLocation.Header
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id ="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+            });
+            services.AddAutoMapper(typeof(Startup));
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+              .AddEntityFrameworkStores<ApplicationDbContext>()
+              .AddDefaultTokenProviders();
+
+            services.AddAuthorization(opciones =>
+            {
+                opciones.AddPolicy("EsAdmin", politica => politica.RequireClaim("esAdmin"));
             });
 
+            services.AddCors(opciones =>
+            {
+                opciones.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://apirequest.io").AllowAnyMethod().AllowAnyHeader();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
 
-            //app.Use(async (context, siguiente) =>
-            //{
-            //    using (var ms = new MemoryStream())
-            //    {
-            //        var bodyOriginal = context.Response.Body;
-            //        context.Response.Body = ms;
-
-            //        await siguiente.Invoke();
-
-            //        ms.Seek(0, SeekOrigin.Begin);
-            //        string response = new StreamReader(ms).ReadToEnd();
-            //        ms.Seek(0, SeekOrigin.Begin);
-
-            //        await ms.CopyToAsync(bodyOriginal);
-            //        context.Response.Body = bodyOriginal;
-
-            //        logger.LogInformation(response);
-            //    }
-            //});
-
             app.UseResponseHttpMiddleware();
 
-            app.Map("/maping", app =>
-            {
-                app.Run(async context =>
-                {
-                    await context.Response.WriteAsync("Interceptando las peticiones");
-                });
-            });
+           
 
             // Configure the HTTP request pipeline.
             if (env.IsDevelopment())
@@ -79,6 +107,8 @@ namespace WebAPIGameShop
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPIGameShop;
 
@@ -11,9 +12,10 @@ using WebAPIGameShop;
 namespace WebAPIGameShop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221123100347_SistemaUsuarios")]
+    partial class SistemaUsuarios
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,15 +269,10 @@ namespace WebAPIGameShop.Migrations
                     b.Property<string>("Contenido")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UsuarioId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("VideoGameID")
                         .HasColumnType("int");
 
                     b.HasKey("id");
-
-                    b.HasIndex("UsuarioId");
 
                     b.HasIndex("VideoGameID");
 
@@ -374,17 +371,11 @@ namespace WebAPIGameShop.Migrations
 
             modelBuilder.Entity("WebAPIGameShop.Entidades.Opinion", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId");
-
                     b.HasOne("WebAPIGameShop.Entidades.VideoGame", "videoGame")
                         .WithMany("Opinions")
                         .HasForeignKey("VideoGameID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Usuario");
 
                     b.Navigation("videoGame");
                 });
